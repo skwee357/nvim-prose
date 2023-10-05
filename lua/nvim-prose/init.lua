@@ -48,7 +48,13 @@ function M.is_available()
         return false
     end
 
-    return config.filetypes[vim.bo.filetype] ~= nil
+    for _, val in ipairs(config.filetypes) do
+        if val == vim.bo.filetype then
+            return true
+        end
+    end
+
+    return false
 end
 
 return M
