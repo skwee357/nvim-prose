@@ -31,6 +31,26 @@ After than, you can use `nvim-prose` in any location you want (e.g. your status 
 - `reading_time()` - return the reading time (in minutes) of the current document
 - `is_available()` - returns whether `nvim-prose` is supported in the current filetype (based on `filetypes` provided in the config)
 
+### With `lualine`
+
+If you use `lualine`, you can set up `nvim-prose` with it like this:
+
+```lua
+local prose = require 'nvim-prose'
+
+require 'lualine'.setup {
+    ...
+    sections = {
+        ...
+        lualine_x = {
+                { prose.word_count,   cond = prose.is_available },
+                { prose.reading_time, cond = prose.is_available },
+            },
+    },
+    ...
+}
+```
+
 ## To do
 
 - [] Add support for `lualine` (via `lualine` extensions)
