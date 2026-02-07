@@ -1,0 +1,22 @@
+name: panvimdoc
+on:
+  push:
+    branches: [main]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: pandoc to vimdoc
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: kdheepak/panvimdoc@main
+        with:
+          vimdoc: nvim-prose
+          description: Calculate and display reading time and word count
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate vimdoc"
+          file_pattern: "doc/*"
