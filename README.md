@@ -10,12 +10,28 @@ Using `plug`:
 Plug 'skwee357/nvim-prose'
 ```
 
-## Usage
-
-Call `setup` with the config you want to pass. The default config is shown below
+Using `lazy.nvim`:
 
 ```lua
-require('nvim-prose').setup {
+return {"skwee357/nvim-prose"}
+```
+
+## Configuration
+
+Default config is available below:
+
+```lua
+---@class nvim-prose.Config
+---@field wpm? number Words per minute (default: 200)
+---@field filetypes? string[] Filetypes to enable (default: { "markdown", "asciidoc" })
+---@field placeholders? nvim-prose.Placeholders
+
+---@class nvim-prose.Placeholders
+---@field words? string Placeholder for word count (default: "words")
+---@field minutes? string Placeholder for reading time (default: "min")
+
+---@type nvim-prose.Config
+local config = {
     wpm = 200.0,
     filetypes = { 'markdown', 'asciidoc' },
     placeholders = {
@@ -25,33 +41,65 @@ require('nvim-prose').setup {
 }
 ```
 
-After than, you can use `nvim-prose` in any location you want (e.g. your status line). It exposes 3 methods:
+## API
 
-- `word_count()` - return the number of words in the document
-- `reading_time()` - return the reading time (in minutes) of the current document
-- `is_available()` - returns whether `nvim-prose` is supported in the current filetype (based on `filetypes` provided in the config)
+The plugin exposes the following method:
+
+- `word_count()` - returns the number of words in a document, with `placeholders.words` appended to it
+- `reading_time()` - returns the reading time (in minutes) in a document, with `placeholders.minutes` appended to it
+- `is_available()` - return whether `nvim-prose` is available in current file type (based on `filetypes` provided in the configuration)
+
+## Usage
+
+### Direct usage
+
+After installing and configuring the plugin, you can use it directly in any place you desire.
+
+```lua
+local prose = require("nvim-prose")
+print(prose.word_count())
+```
 
 ### With `lualine`
 
-If you use `lualine`, you can set up `nvim-prose` with it like this:
+If you use `lualine`, you can require `nvim-prose` as a dependency to `lualine` (using `lazy.nvim`)
 
 ```lua
-local prose = require 'nvim-prose'
+return {
+    "nvim-lualine/lualine.nvim",
+    dependencies = {
+        "nvim-tree/nvim-web-devicons",
+        { "nvim-prose", opts = {} } -- <- Pass custom options if needed
+    },
+}
+```
 
+`nvim-prose` ships with two `lualine` components:
+
+- `prose_word_count`
+- `prose_reading_time`
+
+You can use them with your `lualine` setup:
+
+```lua
 require 'lualine'.setup {
     ...
     sections = {
         ...
         lualine_x = {
-                { prose.word_count,   cond = prose.is_available },
-                { prose.reading_time, cond = prose.is_available },
+                { "prose_word_count" },
+                { "prose_reading_time" },
             },
     },
     ...
 }
 ```
 
-## To do
+## Contributing
 
-- [] Add support for `lualine` (via `lualine` extensions)
-- [] Generate proper docs
+If you would like to contribute to this plugin, please feel free to submit a pull-request.
+
+## License
+
+Licensed under MIT license.
+See [LICENSE.md](/LICENSE.md) for full license file.
