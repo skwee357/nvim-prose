@@ -2,7 +2,10 @@ local M = require("lualine.component"):extend();
 local prose = require('nvim-prose');
 
 function M:init(options)
-    options.cond = prose.is_available
+    local user_cond = options.cond
+    options.cond = function()
+        return prose.is_available() and (user_cond == nil or user_cond())
+    end
     M.super.init(self, options)
 end
 

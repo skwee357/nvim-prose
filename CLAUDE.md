@@ -31,7 +31,7 @@ on its refresh cycle, and only shows them when `is_available()` is true.
 Tools available in the VM: `nvim` (0.10), `luajit`, `lua5.1`, `luarocks`,
 `luacheck`, `stylua`, `rg`, `fdfind`, `make`.
 
-- Lint: `luacheck lua/ --globals vim`
+- Lint: `luacheck .` (config in `.luacheckrc`)
 - Format: `stylua lua/` (no `stylua.toml` yet; existing code uses 4-space indents
   and single quotes in most places — check the diff before committing a reformat)
 - Smoke test headless (load from the repo, no user config):

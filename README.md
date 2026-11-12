@@ -22,13 +22,13 @@ Default config is available below:
 
 ```lua
 ---@class nvim-prose.Config
----@field wpm? number Words per minute (default: 200)
+---@field wpm? number Words per minute, must be a positive number (default: 200)
 ---@field filetypes? string[] Filetypes to enable (default: { "markdown", "asciidoc" })
 ---@field placeholders? nvim-prose.Placeholders
 
 ---@class nvim-prose.Placeholders
----@field words? string Placeholder for word count (default: "words")
----@field minutes? string Placeholder for reading time (default: "min")
+---@field words? string|false Suffix for word count, `false` or `""` to disable (default: "words")
+---@field minutes? string|false Suffix for reading time, `false` or `""` to disable (default: "min")
 
 ---@type nvim-prose.Config
 local config = {
@@ -69,7 +69,7 @@ return {
     "nvim-lualine/lualine.nvim",
     dependencies = {
         "nvim-tree/nvim-web-devicons",
-        { "nvim-prose", opts = {} } -- <- Pass custom options if needed
+        { "skwee357/nvim-prose", opts = {} } -- <- Pass custom options if needed
     },
 }
 ```
@@ -93,6 +93,15 @@ require 'lualine'.setup {
     },
     ...
 }
+```
+
+Both components are only shown in the configured `filetypes`. If you pass your own
+`cond`, it is combined with that check (the component shows only when both are true):
+
+```lua
+lualine_x = {
+    { "prose_word_count", cond = function() return vim.o.columns > 100 end },
+},
 ```
 
 ## Contributing
