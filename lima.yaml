@@ -1,0 +1,53 @@
+images:
+  - location: "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-amd64.qcow2"
+    arch: "x86_64"
+  - location: "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-genericcloud-arm64.qcow2"
+    arch: "aarch64"
+
+cpus: 1
+memory: "2GiB"
+disk: "20GiB"
+
+# Apple Virtualization.framework backend + virtiofs for fast mounts (macOS).
+vmType: "vz"
+mountType: "virtiofs"
+
+mounts:
+  - location: "~/workspace/neovim-plugins/nvim-prose/"
+    writable: true
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      export DEBIAN_FRONTEND=noninteractive
+
+      hostnamectl set-hostname nvim-prose
+
+      apt-get update
+      apt-get install -y avahi-daemon git unzip curl ca-certificates gnupg
+
+      # Plugin dev tooling: editor, Lua runtimes, linter, search tools
+      apt-get install -y neovim luajit lua5.1 luarocks lua-check make ripgrep fd-find
+
+      # StyLua (formatter) is not packaged in Debian; install the release binary
+      STYLUA_VERSION=2.3.1
+      case "$(uname -m)" in
+        aarch64) STYLUA_ARCH=linux-aarch64 ;;
+        x86_64)  STYLUA_ARCH=linux-x86_64 ;;
+      esac
+      tmp="$(mktemp -d)"
+      curl -fsSL -o "$tmp/stylua.zip" \
+        "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA_VERSION}/stylua-${STYLUA_ARCH}.zip"
+      unzip -q -o "$tmp/stylua.zip" -d "$tmp"
+      install -m 755 "$tmp/stylua" /usr/local/bin/stylua
+      rm -rf "$tmp"
+  - mode: user
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+
+      curl -fsSL https://claude.ai/install.sh | bash
+      grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" \
+        || echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
