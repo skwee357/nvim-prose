@@ -125,6 +125,51 @@ describe("nvim-prose", function()
         end)
     end)
 
+    describe("word count cache", function()
+        local wordcount = vim.fn.wordcount
+        local calls
+
+        before_each(function()
+            calls = 0
+            vim.fn.wordcount = function()
+                calls = calls + 1
+                return wordcount()
+            end
+        end)
+
+        after_each(function()
+            vim.fn.wordcount = wordcount
+        end)
+
+        it("counts once for an unchanged buffer", function()
+            buffer({ "one two" })
+            prose.word_count()
+            prose.reading_time()
+            prose.word_count()
+            assert.equals(1, calls)
+        end)
+
+        it("recounts after the buffer changes", function()
+            local buf = buffer({ "one two" })
+            assert.equals("2 words", prose.word_count())
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "one two three" })
+            assert.equals("3 words", prose.word_count())
+            assert.equals(2, calls)
+        end)
+
+        it("keeps a separate count per buffer", function()
+            local a = buffer({ "one" })
+            local b = buffer({ "one two" })
+            vim.api.nvim_set_current_buf(a)
+            assert.equals("1 words", prose.word_count())
+            vim.api.nvim_set_current_buf(b)
+            assert.equals("2 words", prose.word_count())
+            vim.api.nvim_set_current_buf(a)
+            assert.equals("1 words", prose.word_count())
+            assert.equals(2, calls)
+        end)
+    end)
+
     describe("is_available", function()
         it("is true for default filetypes", function()
             buffer({}, "markdown")

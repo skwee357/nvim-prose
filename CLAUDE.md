@@ -26,9 +26,10 @@ directly.
 
 ## How it works
 
-No autocommands or caching: every call to `word_count()` / `reading_time()` asks
-Neovim for `wordcount()` on the current buffer. lualine re-evaluates the components
-on its refresh cycle, and only shows them when `is_available()` is true.
+No autocommands. `word_count()` / `reading_time()` share a per-buffer cache keyed on
+`b:changedtick`, so `wordcount()` runs only when the current buffer has changed since
+the last call. lualine re-evaluates the components on its refresh cycle, and only
+shows them when `is_available()` is true.
 
 ## Development
 

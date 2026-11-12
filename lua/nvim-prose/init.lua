@@ -45,15 +45,30 @@ local function with_suffix(value, suffix)
     return value
 end
 
+---@type table<integer, { tick: integer, words: integer }>
+local cache = {}
+
+---@return integer
+local function count_words()
+    local buf = vim.api.nvim_get_current_buf()
+    local tick = vim.api.nvim_buf_get_changedtick(buf)
+    local entry = cache[buf]
+    if not entry or entry.tick ~= tick then
+        entry = { tick = tick, words = vim.fn.wordcount().words }
+        cache[buf] = entry
+    end
+    return entry.words
+end
+
 ---@return string
 function M.word_count()
-    local words = tostring(vim.fn.wordcount().words)
+    local words = tostring(count_words())
     return with_suffix(words, config.placeholders and config.placeholders.words)
 end
 
 ---@return string
 function M.reading_time()
-    local rt = tostring(math.ceil(vim.fn.wordcount().words / config.wpm))
+    local rt = tostring(math.ceil(count_words() / config.wpm))
     return with_suffix(rt, config.placeholders and config.placeholders.minutes)
 end
 
