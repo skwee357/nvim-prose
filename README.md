@@ -48,6 +48,9 @@ The plugin exposes the following method:
 - `word_count()` - returns the number of words in a document, with `placeholders.words` appended to it
 - `reading_time()` - returns the reading time (in minutes) in a document, with `placeholders.minutes` appended to it
 - `is_available()` - return whether `nvim-prose` is available in current file type (based on `filetypes` provided in the configuration)
+- `is_visual()` - return whether a visual selection is active (`v`, `V` or `CTRL-V`)
+
+While a visual selection is active, `word_count()` and `reading_time()` report the selected text instead of the whole buffer.
 
 ## Usage
 

@@ -13,6 +13,9 @@ directly.
   - `word_count()` — `vim.fn.wordcount().words` + optional `placeholders.words` suffix.
   - `reading_time()` — `ceil(words / wpm)` + optional `placeholders.minutes` suffix.
   - `is_available()` — true when `vim.bo.filetype` is in `config.filetypes`.
+  - `is_visual()` — true in `v`/`V`/`CTRL-V`; counts then come from `wordcount().visual_words`
+    and bypass the cache, since moving a selection does not bump `b:changedtick`. If
+    `visual_words` is missing (e.g. another window's statusline), the cached buffer count is used.
 - `lua/lualine/components/prose_word_count.lua`, `prose_reading_time.lua` — lualine
   components; their `cond` combines `prose.is_available` with any user `cond`.
 - `spec/` — busted tests run inside Neovim via nlua. `spec/support/lualine/component.lua`

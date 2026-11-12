@@ -48,8 +48,22 @@ end
 ---@type table<integer, { tick: integer, words: integer }>
 local cache = {}
 
+local VISUAL_MODES = { v = true, V = true, ["\22"] = true }
+
+---@return boolean
+function M.is_visual()
+    return VISUAL_MODES[vim.api.nvim_get_mode().mode:sub(1, 1)] == true
+end
+
 ---@return integer
 local function count_words()
+    if M.is_visual() then
+        local selected = vim.fn.wordcount().visual_words
+        if selected then
+            return selected
+        end
+    end
+
     local buf = vim.api.nvim_get_current_buf()
     local tick = vim.api.nvim_buf_get_changedtick(buf)
     local entry = cache[buf]

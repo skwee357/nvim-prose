@@ -170,6 +170,75 @@ describe("nvim-prose", function()
         end)
     end)
 
+    describe("visual selection", function()
+        local result
+
+        local function in_visual(keys)
+            result = nil
+            _G.__prose_capture = function()
+                result = {
+                    words = prose.word_count(),
+                    minutes = prose.reading_time(),
+                    visual = prose.is_visual(),
+                }
+            end
+            local feed = "<Esc>gg" .. keys .. "<Cmd>lua __prose_capture()<CR><Esc>"
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(feed, true, false, true), "x", false)
+            _G.__prose_capture = nil
+            return result
+        end
+
+        before_each(function()
+            buffer({ "one two three", "four five", words(400) })
+        end)
+
+        it("counts the selected lines in visual line mode", function()
+            local r = in_visual("Vj")
+            assert.is_true(r.visual)
+            assert.equals("5 words", r.words)
+            assert.equals("1 min", r.minutes)
+        end)
+
+        it("counts the selection in charwise visual mode", function()
+            assert.equals("2 words", in_visual("vw").words)
+        end)
+
+        it("counts the selection in blockwise visual mode", function()
+            assert.equals("2 words", in_visual("<C-v>jl").words)
+        end)
+
+        it("uses the selection for reading time", function()
+            assert.equals("2 min", in_visual("jjV").minutes)
+        end)
+
+        it("returns to the whole buffer after leaving visual mode", function()
+            in_visual("Vj")
+            assert.is_false(prose.is_visual())
+            assert.equals("405 words", prose.word_count())
+            assert.equals("3 min", prose.reading_time())
+        end)
+
+        it("does not overwrite the cached buffer count", function()
+            assert.equals("405 words", prose.word_count())
+            in_visual("Vj")
+            assert.equals("405 words", prose.word_count())
+        end)
+
+        it("falls back to the buffer count when there is no selection count", function()
+            local wordcount = vim.fn.wordcount
+            vim.fn.wordcount = function()
+                local wc = wordcount()
+                wc.visual_words = nil
+                return wc
+            end
+            local r = in_visual("Vj")
+            vim.fn.wordcount = wordcount
+            assert.is_true(r.visual)
+            assert.equals("405 words", r.words)
+            assert.equals("3 min", r.minutes)
+        end)
+    end)
+
     describe("is_available", function()
         it("is true for default filetypes", function()
             buffer({}, "markdown")
