@@ -48,6 +48,9 @@ provision:
       #!/bin/bash
       set -eux -o pipefail
 
+      luarocks --local --lua-version=5.1 install busted
+      luarocks --local --lua-version=5.1 install nlua
+
       curl -fsSL https://claude.ai/install.sh | bash
       grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" \
         || echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"

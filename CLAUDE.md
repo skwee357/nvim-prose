@@ -14,11 +14,15 @@ directly.
   - `reading_time()` — `ceil(words / wpm)` + optional `placeholders.minutes` suffix.
   - `is_available()` — true when `vim.bo.filetype` is in `config.filetypes`.
 - `lua/lualine/components/prose_word_count.lua`, `prose_reading_time.lua` — lualine
-  components; they set `cond = prose.is_available` and return the API strings.
+  components; their `cond` combines `prose.is_available` with any user `cond`.
+- `spec/` — busted tests run inside Neovim via nlua. `spec/support/lualine/component.lua`
+  is a minimal stand-in for lualine's component class, so lualine isn't needed to test.
 - `README.md` — user docs and the **source of truth for vimdoc**.
 - `doc/` — `doc/nvim-prose.txt` is generated from README.md by the `panvimdoc`
   GitHub Action on push to `main`. Do not edit it by hand.
 - `lima.yaml` — the Lima VM definition for the dev environment (Debian 13).
+- `.github/workflows/ci.yml` — luacheck, StyLua check and busted (stable Neovim) on
+  push to `main` and on pull requests. `panvimdoc.yml` is separate.
 
 ## How it works
 
@@ -29,20 +33,14 @@ on its refresh cycle, and only shows them when `is_available()` is true.
 ## Development
 
 Tools available in the VM: `nvim` (0.10), `luajit`, `lua5.1`, `luarocks`,
-`luacheck`, `stylua`, `rg`, `fdfind`, `make`.
+`luacheck`, `stylua`, `busted` + `nlua` (in `~/.luarocks`), `rg`, `fdfind`, `make`.
 
-- Lint: `luacheck .` (config in `.luacheckrc`)
-- Format: `stylua lua/` (no `stylua.toml` yet; existing code uses 4-space indents
-  and single quotes in most places — check the diff before committing a reformat)
-- Smoke test headless (load from the repo, no user config):
-  ```sh
-  nvim --headless -u NONE --cmd 'set rtp+=.' \
-    -c 'filetype on' -c 'e some.md' \
-    -c 'lua local p=require("nvim-prose"); p.setup({}); print(p.word_count(), p.reading_time(), p.is_available())' \
-    -c 'qa!'
-  ```
-  `-u NONE` disables filetype detection, so enable it (`filetype on`) or
-  `set ft=markdown` before testing `is_available()`.
+- `make check` — lint, format check and tests (what CI runs)
+- `make lint` — `luacheck .` (config in `.luacheckrc`)
+- `make format` / `make format-check` — StyLua (config in `.stylua.toml`: 4 spaces,
+  double quotes, 120 columns)
+- `make test` — busted (config in `.busted`). Tests must reset module state:
+  `package.loaded["nvim-prose"] = nil` in `before_each`, since `config` is module-local.
 
 ## Conventions
 
