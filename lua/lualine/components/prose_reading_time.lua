@@ -1,5 +1,5 @@
-local M = require("lualine.component"):extend();
-local prose = require('nvim-prose');
+local M = require("lualine.component"):extend()
+local prose = require("nvim-prose")
 
 function M:init(options)
     local user_cond = options.cond

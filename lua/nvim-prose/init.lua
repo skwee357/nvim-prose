@@ -14,11 +14,11 @@ local DEFAULT_WPM = 200.0
 ---@type nvim-prose.Config
 local config = {
     wpm = DEFAULT_WPM,
-    filetypes = { 'markdown', 'asciidoc' },
+    filetypes = { "markdown", "asciidoc" },
     placeholders = {
-        words = 'words',
-        minutes = 'min'
-    }
+        words = "words",
+        minutes = "min",
+    },
 }
 
 ---@param opts? nvim-prose.Config
@@ -26,9 +26,9 @@ function M.setup(opts)
     config = vim.tbl_deep_extend("force", config, opts or {})
 
     local wpm = config.wpm
-    if type(wpm) ~= 'number' or wpm <= 0 or wpm ~= wpm or wpm == math.huge then
+    if type(wpm) ~= "number" or wpm <= 0 or wpm ~= wpm or wpm == math.huge then
         vim.notify(
-            ('nvim-prose: invalid wpm %s, must be a positive number; using %d'):format(vim.inspect(wpm), DEFAULT_WPM),
+            ("nvim-prose: invalid wpm %s, must be a positive number; using %d"):format(vim.inspect(wpm), DEFAULT_WPM),
             vim.log.levels.WARN
         )
         config.wpm = DEFAULT_WPM
@@ -39,8 +39,8 @@ end
 ---@param suffix? string|false
 ---@return string
 local function with_suffix(value, suffix)
-    if suffix and suffix ~= '' then
-        return value .. ' ' .. suffix
+    if suffix and suffix ~= "" then
+        return value .. " " .. suffix
     end
     return value
 end
