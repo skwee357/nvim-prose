@@ -28,6 +28,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nvim-neorocks/nvim-busted-action@v1
+      - uses: rhysd/action-setup-vim@v1
         with:
-          nvim_version: stable
+          neovim: true
+          version: stable
+      - name: Install luarocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
+      - name: Install busted and nlua
+        run: |
+          luarocks --local --lua-version=5.1 install busted
+          luarocks --local --lua-version=5.1 install nlua
+      - run: make test
