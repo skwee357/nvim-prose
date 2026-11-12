@@ -8,10 +8,11 @@ directly.
 ## Layout
 
 - `lua/nvim-prose/init.lua` — the whole plugin. Holds a module-local `config`
-  (`wpm`, `filetypes`, `placeholders`) and exposes:
-  - `setup(opts)` — deep-merges `opts` into the default config.
-  - `word_count()` — `vim.fn.wordcount().words` + optional `placeholders.words` suffix.
-  - `reading_time()` — `ceil(words / wpm)` + optional `placeholders.minutes` suffix.
+  (`wpm`, `filetypes`, `format`) and exposes:
+  - `setup(opts)` — deep-merges `opts` into the default config and validates `wpm` and
+    `format`. Deprecated `placeholders` are converted to `format` (with a warning).
+  - `word_count()` — `vim.fn.wordcount().words` formatted with `format.words`.
+  - `reading_time()` — `ceil(words / wpm)` formatted with `format.minutes`.
   - `is_available()` — true when `vim.bo.filetype` is in `config.filetypes`.
   - `is_visual()` — true in `v`/`V`/`CTRL-V`; counts then come from `wordcount().visual_words`
     and bypass the cache, since moving a selection does not bump `b:changedtick`. If

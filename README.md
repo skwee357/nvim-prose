@@ -24,29 +24,44 @@ Default config is available below:
 ---@class nvim-prose.Config
 ---@field wpm? number Words per minute, must be a positive number (default: 200)
 ---@field filetypes? string[] Filetypes to enable (default: { "markdown", "asciidoc" })
----@field placeholders? nvim-prose.Placeholders
+---@field format? nvim-prose.Format
 
----@class nvim-prose.Placeholders
----@field words? string|false Suffix for word count, `false` or `""` to disable (default: "words")
----@field minutes? string|false Suffix for reading time, `false` or `""` to disable (default: "min")
+---@class nvim-prose.Format
+---@field words? string Format for word count, `%d` is the number (default: "%d words")
+---@field minutes? string Format for reading time, `%d` is the number (default: "%d min")
 
 ---@type nvim-prose.Config
 local config = {
     wpm = 200.0,
-    filetypes = { 'markdown', 'asciidoc' },
-    placeholders = {
-        words = 'words',
-        minutes = 'min'
-    }
+    filetypes = { "markdown", "asciidoc" },
+    format = {
+        words = "%d words",
+        minutes = "%d min",
+    },
 }
 ```
+
+`format` strings are passed to `string.format` with the number, so the text can go on
+either side of it, with or without a space. Use `%%` for a literal `%`:
+
+```lua
+format = { words = "%d字", minutes = "约%d分钟" }  -- 120字 · 约3分钟
+format = { words = "%d", minutes = "%d min read" } -- 120 · 3 min read
+```
+
+### Deprecated: `placeholders`
+
+`placeholders = { words = "w", minutes = "m" }` still works (it is converted to
+`format = { words = "%d w", minutes = "%d m" }`; `false` or `""` drops the suffix), but
+it shows a deprecation warning and will be removed in a future release. If both are set,
+`format` wins.
 
 ## API
 
 The plugin exposes the following method:
 
-- `word_count()` - returns the number of words in a document, with `placeholders.words` appended to it
-- `reading_time()` - returns the reading time (in minutes) in a document, with `placeholders.minutes` appended to it
+- `word_count()` - returns the number of words in a document, formatted with `format.words`
+- `reading_time()` - returns the reading time (in minutes) in a document, formatted with `format.minutes`
 - `is_available()` - return whether `nvim-prose` is available in current file type (based on `filetypes` provided in the configuration)
 - `is_visual()` - return whether a visual selection is active (`v`, `V` or `CTRL-V`)
 
